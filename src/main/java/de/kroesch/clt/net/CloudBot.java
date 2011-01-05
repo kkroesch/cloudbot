@@ -2,31 +2,37 @@
     CloudBot is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
-    any later version.
+    (at your option) any later version.
 
-    CloudBot is distributed in the hope that it will be useful,
+    Foobar is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CloudBot.  If not, see <http://www.gnu.org/licenses/>.
+    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 package de.kroesch.clt.net;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayDeque;
 import java.util.Properties;
 import java.util.Queue;
 
+import javax.management.relation.Role;
+
 import org.jibble.pircbot.DccFileTransfer;
+import org.jibble.pircbot.IrcException;
+import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
 
 import de.kroesch.clt.Environment;
 import de.kroesch.clt.InternalEnvironment;
 import de.kroesch.clt.Parser;
+import de.kroesch.clt.internal.Get;
 import de.kroesch.clt.internal.Internal;
 import de.kroesch.clt.security.AuthCommand;
 import de.kroesch.clt.security.Authority;
@@ -49,26 +55,36 @@ public class CloudBot extends PircBot implements InternalEnvironment {
 	private String lastErrorMessage = "OK";
 
 	private PrintWriter writer;
-	
+
 	private StringWriter messageWriter;
-	
+
 	private Authority authority = new Authority();
 
-	public CloudBot() {
+	public CloudBot() throws NickAlreadyInUseException, IOException, IrcException {
 		parser = new Parser(this);
 		properties = new Properties();
 		messageWriter = new StringWriter();
 		writer = new PrintWriter(messageWriter);
+		
+		setVerbose(true);
+		setName(NickNameGenerator.generate());
+		connect(properties.getProperty("botmaster.host"));
+		joinChannel("#botnet");
+
+		sendMessage("#botnet", String.format("CloudBot/%s - Up and running",
+				Environment.VERSION));
+
 	}
 
 	/**
 	 * Handle private messages. Sends answer output to sender.
 	 */
 	@Override
-	protected void onPrivateMessage(String sender, String login, String hostname,
-			String message) {
-		if (! BOTMASTER_USER.equals(sender)) return;
-		
+	protected void onPrivateMessage(String sender, String login,
+			String hostname, String message) {
+		if (!BOTMASTER_USER.equals(sender))
+			return;
+
 		execute(message);
 
 		writer.flush();
@@ -77,11 +93,11 @@ public class CloudBot extends PircBot implements InternalEnvironment {
 			messageBuffer.append("? ");
 			messageBuffer.append(lastErrorMessage);
 		}
-		
-		String convertMessage = messageBuffer.toString()
-			.replace("\n", " // ").replace("\t", "  ");
+
+		String convertMessage = messageBuffer.toString().replace("\n", " // ")
+				.replace("\t", "  ");
 		sendMessage("botmaster", convertMessage);
-		
+
 		messageBuffer.delete(0, messageBuffer.length());
 	}
 
@@ -92,15 +108,16 @@ public class CloudBot extends PircBot implements InternalEnvironment {
 	public void onMessage(String channel, String sender, String login,
 			String hostname, String message) {
 
-		if (! "botmaster".equals(sender)) return;
-		
+		if (!"botmaster".equals(sender))
+			return;
+
 		execute(message);
-		
+
 		writer.flush();
 		StringBuffer messageBuffer = messageWriter.getBuffer();
 		messageBuffer.delete(0, messageBuffer.length());
 	}
-	
+
 	/*
 	 * Common functionality for incoming messages
 	 */
@@ -112,7 +129,7 @@ public class CloudBot extends PircBot implements InternalEnvironment {
 		try {
 			if (consoleCommand instanceof AuthCommand) {
 				AuthCommand cmd = (AuthCommand) consoleCommand;
-				if (! authority.authorize(cmd))
+				if (!authority.authorize(cmd))
 					throw new SecurityException("Not authorized.");
 			}
 			consoleCommand.run();
@@ -176,17 +193,10 @@ public class CloudBot extends PircBot implements InternalEnvironment {
 	}
 
 	public static void main(String[] args) throws Exception {
-    CloudBot bot = new CloudBot();
-    bot.setVerbose(true);
-    bot.setName(NickNameGenerator.generate());
-    bot.connect("localhost");
-    bot.joinChannel("#botnet");
-    
-    bot.sendMessage("#botnet", 
-    String.format("FreXBot/%s - Up and running", Environment.VERSION));
+		CloudBot bot = new CloudBot();
 	}
 
 	public Authority authority() {
 		return authority;
-	}	
+	}
 }
