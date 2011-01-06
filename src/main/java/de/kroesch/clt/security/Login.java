@@ -1,5 +1,9 @@
 package de.kroesch.clt.security;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import de.kroesch.clt.Command;
 import de.kroesch.clt.Environment;
@@ -17,12 +21,26 @@ public class Login implements Command, HasArguments {
 	private Environment env;
 	
 	public void run() {
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileReader(".console.properties"));
+		} catch (FileNotFoundException e) {
+			env.writer().printf("Password was not set. Cannot authenticate.\n");
+		} catch (IOException e) {
+			env.writer().printf("Password was not set. Cannot authenticate.\n");
+		}
+		String correctPassword = prop.getProperty("auth.password");
+		if (null == correctPassword) { 
+			env.writer().printf("Password was not set. Cannot authenticate.\n");
+			return;
+		}
+		
 		String password = args.get(0);
-		if ("enigma".equals(password)) {
+		if (correctPassword.equals(password)) {
 			env.writer().printf("OK - Authenticated.\n");
 			((InternalEnvironment) env).authority().authenticate("root");
 		} else {
-			env.writer().printf("?Incorrect credentials. Incident will be reported.\n");
+			env.writer().printf("?Incorrect credentials.\n");
 		}
 	}
 

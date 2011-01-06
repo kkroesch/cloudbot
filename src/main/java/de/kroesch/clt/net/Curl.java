@@ -29,6 +29,8 @@ public class Curl implements Command, AuthCommand, HasArguments {
 	private List<String> args;
 
 	private final int EOF = -1;
+	
+	private final int MAX_SPLAYTIME = 6000; // ms
 
 	public void run() {
 		final URL url;
@@ -40,11 +42,11 @@ public class Curl implements Command, AuthCommand, HasArguments {
 		
 		// Wait a certain amount of time in Bot environment
 		// to avoid load peaks.
-		int spraytime = new Random().nextInt(60000);
-		env.writer().printf("Waiting %d seconds befor starting download.", spraytime/60);
+		int splaytime = new Random().nextInt(MAX_SPLAYTIME);
+		env.writer().printf("Waiting %d seconds befor starting download.\n", splaytime/1000);
 		env.writer().flush();
 		try {
-			Thread.sleep(spraytime);
+			Thread.sleep(splaytime);
 		} catch (InterruptedException e) {}
 
 		try {
@@ -63,10 +65,14 @@ public class Curl implements Command, AuthCommand, HasArguments {
 			OutputStream outStream = new FileOutputStream(file);
 			
 			copy(inStream, outStream);
+			
+			env.writer().printf("OK - Saved as %s.\n", file);
+			env.writer().flush();
 
 		} catch (IOException e) {
 			throw new RuntimeException("Transmission failure. Aborted.");
 		}
+		
 	}
 
 	public void setEnvironment(Environment env) {
