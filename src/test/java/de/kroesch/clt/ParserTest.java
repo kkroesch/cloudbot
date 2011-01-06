@@ -11,5 +11,8 @@ public class ParserTest {
 	public void quoted() throws Exception {
 		Environment env = new TestEnvironment();
 		Parser parser = new Parser(env);
+		
+		Runnable value = parser.parseCommand("print \"quoted\"");
+		value.run();
 	}
 }

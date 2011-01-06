@@ -15,6 +15,7 @@
 package de.kroesch.clt.net;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,6 +41,12 @@ import de.kroesch.clt.security.Authority;
 /**
  * Implementation of an IRC bot infrastructure.
  * 
+ * The behaviour is as follows:
+ * 
+ *   * Bot connects to the IRC host specified in ''.console.properties''
+ *   * Bot ignores any messages from users other than botmaster. The latter are executed silently.
+ *   * When invited to a private chat, the bot answers to commands, i.e. sends output as message back.
+ * 
  * @author Karsten Kroesch <karsten@kroesch.de>
  */
 public class CloudBot extends PircBot implements InternalEnvironment {
@@ -63,12 +70,15 @@ public class CloudBot extends PircBot implements InternalEnvironment {
 	public CloudBot() throws NickAlreadyInUseException, IOException, IrcException {
 		parser = new Parser(this);
 		properties = new Properties();
+		properties.load(new FileReader(".console.properties"));
 		messageWriter = new StringWriter();
 		writer = new PrintWriter(messageWriter);
 		
 		setVerbose(true);
 		setName(NickNameGenerator.generate());
-		connect(properties.getProperty("botmaster.host"));
+		String botmaster = properties.getProperty("botmaster.host");
+		System.out.println("Connecting to " + botmaster);
+		connect(botmaster);
 		joinChannel("#botnet");
 
 		sendMessage("#botnet", String.format("CloudBot/%s - Up and running",

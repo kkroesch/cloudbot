@@ -132,6 +132,7 @@ public class Parser {
 	 * Evaluate a variable. 
 	 */
 	public String eval(String variable) {
+		if (null == environment.get(variable.substring(1))) return "null";
 		return environment.get(variable.substring(1));
 	}
 	
