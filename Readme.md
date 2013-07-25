@@ -10,11 +10,11 @@ Since the project is built with Apache Maven, it can be compiled and started wit
 
 To start the Terminal, simply execute 
   
-  mvn exec:java -Dexec.mainClass="de.kroesch.clt.Terminal"''
+    mvn exec:java -Dexec.mainClass="de.kroesch.clt.Terminal"
 
 ## Execute Bot 
 
-  mvn exec:java -Dexec.mainClass="de.kroesch.clt.net.CloudBot"''
+    mvn exec:java -Dexec.mainClass="de.kroesch.clt.net.CloudBot"
 
   * Run an IRC server on a master host. Make sure that no other computers can connect to this host.
   * Bot connects to the IRC host specified in ''.console.properties''
