@@ -6,7 +6,7 @@ This is the Command Line Toolkit. It was intended as a plug-in to a consisting J
 
 ## Build
 
-Since the project is built with Apache Maven, it can be compiled and started with ''mvn compile''.
+Since the project is built with Apache Maven, it can be compiled and started with `mvn compile`.
 
 To start the Terminal, simply execute 
   
