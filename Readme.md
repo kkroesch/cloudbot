@@ -1,17 +1,17 @@
-====== Command Line Toolkit ======
+## Command Line Toolkit
 
-===== Introduction =====
+# Introduction
 
 This is the Command Line Toolkit. It was intended as a plug-in to a consisting Java server application that has a command-line maintenance interface. While development was going on, I added an IRC library to be able to control several nodes by sending them all the same command.
 
-===== Build =====
+# Build
 
 Since the project is built with Apache Maven, it can be compiled and started with ''mvn compile''.
 
 To start the Terminal, simply execute 
 ''mvn exec:java -Dexec.mainClass="de.kroesch.clt.Terminal"''
 
-===== Execute Bot =====
+# Execute Bot 
 
 ''mvn exec:java -Dexec.mainClass="de.kroesch.clt.net.CloudBot"''
 
